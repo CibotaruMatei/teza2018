@@ -11,14 +11,25 @@ class doublelist {
     private :
         int length = 0;
         termen *start,*current,*finalist;
-        bool isempty() {return length == 0;}
     public :
-        doublelist() { length=0; }
+        doublelist() {length=0;}
 
-        int showlength() {int value=length;cout<<endl<<value;}
+        void showlength() {
+            cout<<endl<<length<<endl;
+        }
+
+        void searchvalue(int val) {
+            element * carrier = start;
+            while(carrier != NULL) {
+                if(carrier->info == val) {
+                    current = carrier;
+                    break;
+                } else carrier = carrier->next;
+            }
+        }
 
         int printLIST(int direction){
-            if (!isempty()) {
+            if (length != 0) {
                 element *carrier;
                 if(direction) {
                     carrier=start;
@@ -81,26 +92,100 @@ class doublelist {
                 new_one->info=value;
                 new_one->next=start;
                 new_one->prev=NULL;
-                start->next = new_one;
+                start->prev = new_one;
+                start = new_one;
+                current = new_one;
+            } else {
+                element *new_one=new element;
+                new_one->info=value;
+                new_one->next=NULL;
+                new_one->prev=finalist;
+                finalist->next = new_one;
                 finalist=new_one;
                 current=new_one;
+                length++;
             }
-            element *new_one=new element;
-            new_one->info=value;
-            new_one->next=NULL;
-            new_one->prev=finalist;
-            finalist->next = new_one;
-            finalist=new_one;
-            current=new_one;
-            length++;
             return true;
+        }
+        
+        int delRight(){
+            if (length==0) {
+                return NULL;
+            }else if(length == 1) {
+                int old_value = current->info;
+                delete current;
+                start=current=finalist=NULL;
+                length=0;
+                return old_value;
+            } else if(current == finalist) {
+                int old_value = finalist->info;
+                finalist=finalist->prev;
+                delete finalist->next;
+                finalist->next = NULL;
+                current=finalist;
+                length--;
+                return old_value;
+            } else {
+                int old_value = current->next->info;
+                if(current->next == finalist) {
+                    delete current->next;
+                    current->next = NULL;
+                } else {
+                    element * copy = current->next;
+                    current->next = current->next->next;
+                    delete copy;
+                    current->next->prev = current;
+                }
+                length--;
+                return old_value;
+            }
+        }
+
+        int delLeft(){
+            if (length==0) {
+                return NULL;
+            } else if(length == 1) {
+                int old_value = start->info;
+                delete start;
+                start=current=finalist=NULL;
+                length=0;
+                return old_value;
+            } else if(current == start) {
+                int old_value = start->info;
+                start=start->next;
+                delete start->prev;
+                start->prev = NULL;
+                current=start;
+                length--;
+                return old_value;
+            } else {
+                int old_value = current->prev->info;
+                if(current->prev == start) {
+                    delete current->prev;
+                    current->prev = NULL;
+                } else {
+                    element * copy = current->prev;
+                    current->prev = current->prev->prev;
+                    current->prev->next = current;
+                    delete copy;
+                }
+                return old_value;
+            }
         }
     protected :
 } somelist;
 
 int main() {
-    for(int i=1;i<=10;i++)
+    for(int i=1;i<=10;i++){
         somelist.addLeft(i);
-    somelist.printLIST(1); // 1 2 3 4 5 6 7 8 9 10
-    somelist.printLIST(0); // 10 9 8 7 6 5 4 3 2 1
+        somelist.printLIST(1);
+    }
+    somelist.searchvalue(5);
+    somelist.delRight();
+    somelist.printLIST(1);
+    somelist.searchvalue(7);
+    somelist.delLeft();
+    somelist.delLeft();
+    somelist.printLIST(1);
+    somelist.printLIST(0);
 }
